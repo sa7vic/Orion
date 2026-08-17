@@ -34,5 +34,3 @@ LLM-adaptive chat scams, agentic-AI prompt-injection abuse, AI-generated B2B inv
 **The two tiers differ in depth of engineering, not in whether they work.** Deep specialists have hand-built logic tuned to their specific attack type (a Groq semantic prompt, a deterministic registry check, a model trained on curated feature distributions). Auto specialists get a generic-but-real pipeline: infer a plausible feature profile from the taxonomy description, generate synthetic legit-vs-attack data, train a classifier, cache it. **This is also exactly what happens when the closed loop discovers a brand-new pattern at runtime** — promotion isn't just "give it a name," it trains a working detector on the spot (`feedback_loop.py::_promote`). Nothing in this system is a dead end.
 
 ---
-
-  remove them.
