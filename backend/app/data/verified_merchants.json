@@ -1,0 +1,13 @@
+{
+  "verified_vpas": {
+    "chaicorner@okicici": {"merchant_id": "MCH1001", "name": "Chai Corner", "qr_hash": "a1b2c3d4"},
+    "citymart@okhdfc": {"merchant_id": "MCH1002", "name": "City Mart", "qr_hash": "e5f6a7b8"},
+    "quickfuel@oksbi": {"merchant_id": "MCH1003", "name": "Quick Fuel Station", "qr_hash": "c9d0e1f2"},
+    "urbanstyle@okaxis": {"merchant_id": "MCH1004", "name": "Urban Style Apparel", "qr_hash": "f3a4b5c6"},
+    "freshgrocer@okicici": {"merchant_id": "MCH1005", "name": "Fresh Grocer", "qr_hash": "d7e8f9a0"}
+  },
+  "verified_app_signatures": {
+    "com.bank.officialpay": "SHA256:9f8e7d6c5b4a3928",
+    "com.bank.upiapp": "SHA256:1a2b3c4d5e6f7089"
+  }
+}

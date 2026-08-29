@@ -1,0 +1,120 @@
+[
+  {
+    "attack_id": "vishing_relative_emergency",
+    "display_name": "Voice-Clone Vishing",
+    "channel": "voice_call",
+    "technique": "voice_clone_impersonation",
+    "description": "Attacker uses a cloned voice of a trusted contact or fake bank official to create urgency and extract OTP/UPI PIN over a phone call.",
+    "social_engineering_pattern": "urgency + trusted-relation or authority impersonation + secrecy request",
+    "technical_signature": [
+      "synthetic_audio_artifact",
+      "unusual_call_duration_pattern",
+      "voip_mask"
+    ],
+    "seed_or_discovered": "seed",
+    "specialist_module": "vishing",
+    "specialist_tier": "deep",
+    "lifecycle_stage": "promoted"
+  },
+  {
+    "attack_id": "fake_app_qr_substitution",
+    "display_name": "Fake App / QR Substitution",
+    "channel": "qr_or_app",
+    "technique": "cloned_app_or_qr_swap",
+    "description": "Attacker distributes a cloned UPI app (often via WhatsApp) or physically/digitally substitutes a merchant QR code so payments route to a fraudulent account.",
+    "social_engineering_pattern": "trust-in-familiar-brand exploitation",
+    "technical_signature": [
+      "vpa_mismatch",
+      "unregistered_merchant_id",
+      "qr_hash_mismatch",
+      "unsigned_app_package"
+    ],
+    "seed_or_discovered": "seed",
+    "specialist_module": "fake_app_qr",
+    "specialist_tier": "deep",
+    "lifecycle_stage": "promoted"
+  },
+  {
+    "attack_id": "account_takeover",
+    "display_name": "Account Takeover",
+    "channel": "session",
+    "technique": "credential_stuffing_session_hijack",
+    "description": "Attacker gains access via leaked credentials or session hijack, then rapidly moves funds before the legitimate user notices.",
+    "social_engineering_pattern": "n/a - technical takeover, not social engineering",
+    "technical_signature": [
+      "device_change",
+      "geo_velocity_anomaly",
+      "transaction_velocity_spike",
+      "odd_hour_activity"
+    ],
+    "seed_or_discovered": "seed",
+    "specialist_module": "account_takeover",
+    "specialist_tier": "deep",
+    "lifecycle_stage": "promoted"
+  },
+  {
+    "attack_id": "synthetic_identity_kyc",
+    "display_name": "Synthetic Identity / Deepfake KYC",
+    "channel": "onboarding",
+    "technique": "deepfake_kyc_bypass",
+    "description": "Attacker blends real and fabricated identity fragments, using deepfaked video/image KYC to onboard mule accounts used to launder proceeds of other attacks.",
+    "social_engineering_pattern": "n/a - document/biometric forgery",
+    "technical_signature": [
+      "field_inconsistency",
+      "facial_synthesis_artifact",
+      "reused_document_fragment"
+    ],
+    "seed_or_discovered": "seed",
+    "specialist_module": "synthetic_identity",
+    "specialist_tier": "deep",
+    "lifecycle_stage": "promoted"
+  },
+  {
+    "attack_id": "llm_adaptive_chat_scam",
+    "display_name": "LLM-Adaptive Chat Scam",
+    "channel": "chat",
+    "technique": "adaptive_llm_social_engineering",
+    "description": "An LLM-driven scam script that adapts its persuasion strategy in real time based on the victim's chat responses (e.g. fake customer support, romance/investment scam bots).",
+    "social_engineering_pattern": "dynamic persuasion, escalating trust-building",
+    "technical_signature": [
+      "response_latency_pattern",
+      "persuasion_escalation_curve"
+    ],
+    "seed_or_discovered": "seed",
+    "specialist_module": "auto",
+    "specialist_tier": "auto",
+    "lifecycle_stage": "promoted"
+  },
+  {
+    "attack_id": "agentic_prompt_injection",
+    "display_name": "Agentic Payment-Agent Abuse",
+    "channel": "agent_api",
+    "technique": "prompt_injection_autonomous_agent",
+    "description": "Attacker embeds hidden instructions (in a webpage, email, or document) to trick an autonomous shopping/payment agent into authorizing an unintended transfer.",
+    "social_engineering_pattern": "n/a - targets the AI agent, not a human",
+    "technical_signature": [
+      "unexpected_authorization_scope",
+      "instruction_in_untrusted_content"
+    ],
+    "seed_or_discovered": "seed",
+    "specialist_module": "auto",
+    "specialist_tier": "auto",
+    "lifecycle_stage": "promoted"
+  },
+  {
+    "attack_id": "b2b_invoice_fraud",
+    "display_name": "AI-Generated B2B Invoice Fraud",
+    "channel": "business_payment",
+    "technique": "synthetic_invoice_generation",
+    "description": "Attacker uses GenAI to fabricate convincing vendor invoices or impersonate a supplier's email/voice to redirect a B2B push payment.",
+    "social_engineering_pattern": "authority impersonation (vendor/CFO), urgency",
+    "technical_signature": [
+      "new_payee_first_time_large_amount",
+      "invoice_template_deviation"
+    ],
+    "seed_or_discovered": "seed",
+    "specialist_module": "auto",
+    "specialist_tier": "auto",
+    "lifecycle_stage": "promoted"
+  }
+]
