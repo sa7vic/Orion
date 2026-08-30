@@ -79,21 +79,6 @@ class TaxonomyStore:
             self._entries[entry["attack_id"]] = entry
             self._persist()
 
-    def promote_to_auto(self, attack_id: str):
-        """A newly-discovered entry starts life directly in the auto tier
-        with a trained model -- see feedback_loop.py. No more 'stub'
-        status; it's either deep (hand-built) or auto (trained on
-        creation), both fully working."""
-        with self._lock:
-            entry = self._entries.get(attack_id)
-            if not entry:
-                return None
-            entry["specialist_tier"] = "auto"
-            entry["specialist_module"] = "auto"
-            entry["promoted_at"] = datetime.now(timezone.utc).isoformat()
-            self._persist()
-            return entry
-
     def reset(self):
         """Reset live taxonomy back to the seed set (used by the demo reset button)."""
         with self._lock:

@@ -20,6 +20,8 @@ background scraping):
    reports and this is our synthesis," not "the LLM free-associated a
    name."
 """
+import uuid
+
 from app.groq_client import groq_client
 from app.config import settings
 from app.identify.web_research import research_attack_pattern
@@ -71,7 +73,7 @@ def synthesize_new_attack_id(cluster_summary: str, sample_channel: str) -> dict:
         "short strings)."
     )
     fallback = {
-        "attack_id": "emerging_pattern_" + str(abs(hash(cluster_summary)) % 10000),
+        "attack_id": "emerging_pattern_" + uuid.uuid4().hex[:8],
         "display_name": "Emerging Pattern (auto-detected)",
         "technique": "unclassified_emerging_pattern",
         "description": "Auto-flagged by the generalist detector; pending analyst review. "

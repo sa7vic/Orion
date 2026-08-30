@@ -35,18 +35,18 @@ READABLE_FEATURE_NAMES = {
 def extract_features(case: dict) -> dict:
     """Best-effort feature extraction for ANY case shape -- explicit
     session_features win if present (account-takeover cases), otherwise
-    infer from whatever metadata the case carries (vishing/QR/KYC/stub
-    cases all carry *some* metadata)."""
+    infer from whatever metadata or top-level attributes the case carries
+    (vishing/QR/KYC/stub cases all carry metadata)."""
     if "session_features" in case:
         feats = case["session_features"]
     else:
         metadata = case.get("metadata", {})
         feats = {
-            "hour_of_day": metadata.get("hour_of_day", 12),
-            "device_change": int(bool(metadata.get("voip_masked") or metadata.get("device_change"))),
-            "geo_velocity_kmh": metadata.get("geo_velocity_kmh", 5),
-            "tx_velocity_10min": metadata.get("tx_velocity_10min", 1),
-            "login_failed_attempts": metadata.get("login_failed_attempts", 0),
+            "hour_of_day": metadata.get("hour_of_day", case.get("hour_of_day", 12)),
+            "device_change": int(bool(metadata.get("voip_masked") or metadata.get("device_change") or case.get("device_change"))),
+            "geo_velocity_kmh": metadata.get("geo_velocity_kmh", case.get("geo_velocity_kmh", 5)),
+            "tx_velocity_10min": metadata.get("tx_velocity_10min", case.get("tx_velocity_10min", 1)),
+            "login_failed_attempts": metadata.get("login_failed_attempts", case.get("login_failed_attempts", 0)),
             "amount_inr": case.get("amount_inr", metadata.get("amount_inr", 1000)),
         }
     return {c: feats.get(c, 0) for c in FEATURE_COLS}

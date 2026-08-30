@@ -17,7 +17,9 @@ def summarize_case(case: dict, channel: str | None) -> str:
     if "transcript" in case:
         return case["transcript"][:400]
     if "vpa" in case or "app_package" in case:
-        return f"vpa={case.get('vpa')} app_package={case.get('app_package')} channel={channel}"
+        amt = case.get("amount_inr") or (case.get("metadata") or {}).get("amount_inr")
+        amt_str = f" amount=INR {amt:.2f}" if amt is not None else ""
+        return f"vpa={case.get('vpa')} qr_hash={case.get('qr_hash')}{amt_str} channel={channel}"
     if "application_fields" in case:
         return f"KYC case: {case.get('application_fields')} vs {case.get('document_fields')}"
     if "session_features" in case:

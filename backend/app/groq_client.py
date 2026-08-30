@@ -90,6 +90,10 @@ class OrionGroqClient:
         with self._cache_lock:
             self._cache[key] = (time.time(), value)
 
+    def clear_cache(self):
+        with self._cache_lock:
+            self._cache.clear()
+
     @retry(
         stop=stop_after_attempt(4),
         wait=wait_exponential(multiplier=1, min=1, max=20),
@@ -125,17 +129,20 @@ class OrionGroqClient:
         model: str | None = None,
         json_mode: bool = False,
         offline_fallback: str = "{}",
+        use_cache: bool = True,
     ) -> str:
         model = model or settings.groq_model_fast
         key = self._cache_key(model, prompt, system)
-        cached = self._cache_get(key)
-        if cached is not None:
-            return cached
+        if use_cache:
+            cached = self._cache_get(key)
+            if cached is not None:
+                return cached
 
         if not self.online:
             # Deterministic offline mode: keeps every endpoint functional
             # without an API key (dev/grading convenience).
-            self._cache_set(key, offline_fallback)
+            if use_cache:
+                self._cache_set(key, offline_fallback)
             return offline_fallback
 
         try:
@@ -151,10 +158,12 @@ class OrionGroqClient:
                 f"Groq call failed after retries ({type(e).__name__}: {e}) -- "
                 f"falling back to offline_fallback for model={model}"
             )
-            self._cache_set(key, offline_fallback)
+            if use_cache:
+                self._cache_set(key, offline_fallback)
             return offline_fallback
 
-        self._cache_set(key, result)
+        if use_cache:
+            self._cache_set(key, result)
         return result
 
     def complete_json(
@@ -163,6 +172,7 @@ class OrionGroqClient:
         system: str,
         model: str | None = None,
         offline_fallback: dict | None = None,
+        use_cache: bool = True,
     ) -> dict:
         fallback = offline_fallback or {}
         raw = self.complete(
@@ -171,6 +181,7 @@ class OrionGroqClient:
             model=model,
             json_mode=True,
             offline_fallback=json.dumps(fallback),
+            use_cache=use_cache,
         )
         try:
             cleaned = raw.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()

@@ -19,7 +19,18 @@ def build_case(attack_id: str, record: dict, unstructured: dict | None) -> dict:
             },
         }
     if attack_id == "fake_app_qr_substitution":
-        return {"vpa": "chaicorner@okicici", "qr_hash": "ffff0000"}  # fraudulent by construction, for demo/eval purposes
+        return {
+            "vpa": "chaicorner@okicici",
+            "qr_hash": "ffff0000",  # fraudulent by construction, for demo/eval purposes
+            "metadata": {
+                "hour_of_day": record.get("hour_of_day"),
+                "device_change": record.get("device_change"),
+                "geo_velocity_kmh": record.get("geo_velocity_kmh"),
+                "tx_velocity_10min": record.get("tx_velocity_10min"),
+                "login_failed_attempts": record.get("login_failed_attempts"),
+                "amount_inr": record.get("amount_inr"),
+            },
+        }
     if attack_id == "account_takeover":
         return {
             "session_features": {
