@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+app/data/trained_models/
+app/data/live_taxonomy.json
+.env
+.venv
