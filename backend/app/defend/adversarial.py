@@ -46,7 +46,11 @@ def _mutate_text(original_text: str, flagged_reasons: list[str]) -> str:
         "the same. Return just the rewritten text, nothing else."
     )
     return groq_client.complete(
-        prompt, system=_MUTATE_SYSTEM, model=settings.groq_model_fast, offline_fallback=original_text
+        prompt,
+        system=_MUTATE_SYSTEM,
+        model=settings.groq_model_fast,
+        offline_fallback=original_text,
+        use_cache=False,
     )
 
 
@@ -96,12 +100,15 @@ def evolve(attack_id: str) -> dict:
     case_r1 = case_builder.build_case(attack_id, record, unstructured)
     verdict_r1 = pipeline.run_detection(case_r1, entry.get("channel"))
 
-    if verdict_r1["risk_tier"] == "low":
+    # Round 1 was only caught if it triggered an active mitigation policy (STEP_UP or BLOCK).
+    # If policy action was ALLOW or MONITOR (score < 0.60), no friction was added, so nothing to evade.
+    r1_action = verdict_r1.get("policy", {}).get("action", "ALLOW")
+    if r1_action not in ("STEP_UP", "BLOCK") or verdict_r1["final_risk_score"] < 0.60:
         return {
             "attack_id": attack_id,
             "round_1": pipeline.strip_internal(verdict_r1),
             "round_2": None,
-            "mutation": {"applied": False, "reason": "round 1 wasn't caught -- nothing to evade"},
+            "mutation": {"applied": False, "reason": f"round 1 wasn't caught (policy was {r1_action}) -- nothing to evade"},
         }
 
     if attack_id == "fake_app_qr_substitution":
@@ -139,7 +146,9 @@ def evolve(attack_id: str) -> dict:
         }
 
     verdict_r2 = pipeline.run_detection(case_r2, entry.get("channel"))
-    evaded = verdict_r2["risk_tier"] == "low"
+    r2_action = verdict_r2.get("policy", {}).get("action", "ALLOW")
+    # Evasion succeeded if the mutation downgraded defense from active mitigation (BLOCK/STEP_UP) to unhindered (MONITOR/ALLOW)
+    evaded = r2_action in ("ALLOW", "MONITOR") or verdict_r2["final_risk_score"] < 0.60
     score_delta = round(verdict_r1["final_risk_score"] - verdict_r2["final_risk_score"], 4)
 
     scoreboard.record(

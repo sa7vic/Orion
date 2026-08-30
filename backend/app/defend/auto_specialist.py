@@ -55,11 +55,44 @@ class AutoSpecialistStore:
         count = self._train_count.get(attack_id, 0)
         return f"session-v{count}" if count else "untrained"
 
-    def train(self, attack_entry: dict, n_per_class: int = 150) -> dict:
+    def _evaluate_model(self, clf, attack_entry: dict, n_per_class: int = 150) -> dict:
+        attack_id = attack_entry["attack_id"]
+        legit_df = generate("legit", n=n_per_class, seed=hash(attack_id) % 10000)
+        attack_df = generate(attack_id, n=n_per_class, seed=(hash(attack_id) + 1) % 10000,
+                              taxonomy_entry=attack_entry)
+        import pandas as pd
+        df = pd.concat([legit_df, attack_df], ignore_index=True)
+        X = df[FEATURE_COLS]
+        y = df["label"]
+
+        _, X_test, _, y_test = train_test_split(
+            X, y, test_size=0.25, random_state=42, stratify=y
+        )
+        preds = clf.predict(X_test)
+        probs = clf.predict_proba(X_test)[:, 1]
+        from sklearn.metrics import confusion_matrix
+        tn, fp, fn, tp = confusion_matrix(y_test, preds, labels=[0, 1]).ravel()
+        fpr_on_legit = fp / (fp + tn) if (fp + tn) > 0 else 0.0
+        return {
+            "precision": round(float(precision_score(y_test, preds)), 3),
+            "recall": round(float(recall_score(y_test, preds)), 3),
+            "f1": round(float(f1_score(y_test, preds)), 3),
+            "auc": round(float(roc_auc_score(y_test, probs)), 3),
+            "false_positive_rate_on_legit": round(float(fpr_on_legit), 4),
+            "trained_on": f"{n_per_class * 2} synthetic rows (auto-inferred profile)",
+        }
+
+    def train(self, attack_entry: dict, n_per_class: int = 150, force: bool = False) -> dict:
         attack_id = attack_entry["attack_id"]
         cache_path = self._path(attack_id)
-        if cache_path.exists() and attack_id not in self._models:
-            self._models[attack_id] = joblib.load(cache_path)
+
+        if not force and cache_path.exists():
+            if attack_id not in self._models:
+                self._models[attack_id] = joblib.load(cache_path)
+                self._train_count[attack_id] = max(self._train_count.get(attack_id, 0), 1)
+            if attack_id not in self.metrics:
+                self.metrics[attack_id] = self._evaluate_model(self._models[attack_id], attack_entry, n_per_class)
+            return self.metrics[attack_id]
 
         legit_df = generate("legit", n=n_per_class, seed=hash(attack_id) % 10000)
         attack_df = generate(attack_id, n=n_per_class, seed=(hash(attack_id) + 1) % 10000,

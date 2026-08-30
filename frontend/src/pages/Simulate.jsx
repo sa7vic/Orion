@@ -38,9 +38,18 @@ function buildCasePayload(attackId, record, unstructured) {
       };
     case "fake_app_qr_substitution": {
       const fraudulent = Math.random() > 0.35;
-      return fraudulent
-        ? { vpa: "chaicorner@okicici", qr_hash: "ffff0000" }
-        : { vpa: "citymart@okhdfc", qr_hash: "e5f6a7b8" };
+      return {
+        vpa: fraudulent ? "chaicorner@okicici" : "citymart@okhdfc",
+        qr_hash: fraudulent ? "ffff0000" : "e5f6a7b8",
+        metadata: {
+          hour_of_day: record.hour_of_day,
+          device_change: record.device_change,
+          geo_velocity_kmh: record.geo_velocity_kmh,
+          tx_velocity_10min: record.tx_velocity_10min,
+          login_failed_attempts: record.login_failed_attempts,
+          amount_inr: record.amount_inr,
+        },
+      };
     }
     case "account_takeover":
       return {
@@ -311,7 +320,9 @@ export default function Simulate({ onCaseCreated }) {
                       <div className="text-2xl font-mono font-bold mt-1" style={{ color: tierColor(evolveResult.round_1.final_risk_score) }}>
                         {evolveResult.round_1.final_risk_score.toFixed(2)}
                       </div>
-                      <div className="text-[10px] font-mono text-faint mt-0.5">{evolveResult.round_1.risk_tier?.toUpperCase()}</div>
+                      <div className="text-[10px] font-mono text-faint mt-0.5">
+                        {evolveResult.round_1.policy?.action || evolveResult.round_1.risk_tier?.toUpperCase()}
+                      </div>
                     </div>
                     <ArrowRightSmall evaded={evolveResult.mutation.evaded} />
                     <div className="bg-panel border border-border rounded-lg p-3 text-center">
@@ -319,7 +330,9 @@ export default function Simulate({ onCaseCreated }) {
                       <div className="text-2xl font-mono font-bold mt-1" style={{ color: tierColor(evolveResult.round_2.final_risk_score) }}>
                         {evolveResult.round_2.final_risk_score.toFixed(2)}
                       </div>
-                      <div className="text-[10px] font-mono text-faint mt-0.5">{evolveResult.round_2.risk_tier?.toUpperCase()}</div>
+                      <div className="text-[10px] font-mono text-faint mt-0.5">
+                        {evolveResult.round_2.policy?.action || evolveResult.round_2.risk_tier?.toUpperCase()}
+                      </div>
                     </div>
                   </div>
 
@@ -331,8 +344,8 @@ export default function Simulate({ onCaseCreated }) {
                     }`}
                   >
                     {evolveResult.mutation.evaded
-                      ? "⚠ EVASION SUCCESSFUL — the mutated attack dropped to LOW risk"
-                      : "✓ STILL DETECTED — the detector held up against this mutation"}
+                      ? `⚠ EVASION SUCCESSFUL — policy downgraded to ${evolveResult.round_2.policy?.action || "ALLOW/MONITOR"}`
+                      : `✓ MITIGATION HELD — policy enforced ${evolveResult.round_2.policy?.action || "STEP_UP/BLOCK"}`}
                   </div>
 
                   <div className="text-xs text-muted">

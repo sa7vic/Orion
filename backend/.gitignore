@@ -4,3 +4,4 @@ __pycache__/
 app/data/trained_models/
 app/data/live_taxonomy.json
 .env
+.venv

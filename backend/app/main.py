@@ -216,10 +216,10 @@ def reset_scoreboard():
 @app.post("/api/audit/run")
 def run_redteam_audit(rounds_per_attack: int = 3):
     """Run a periodic red-teaming audit across every eligible specialist.
-    This implements RBI's FREE-AI Committee Report (Assurance pillar)
-    recommendation for 'periodic red-teaming for fraud and abuse' -- see
-    redteam_audit.py for the exact citation and what this deliberately
-    does NOT do (no invented grade or pass/fail threshold)."""
+    This operationalizes RBI's FREE-AI Committee Report (Protection pillar,
+    Recommendation 20) recommendation for 'structured red teaming across the
+    AI lifecycle' -- see redteam_audit.py for the exact citation and what this
+    deliberately does NOT do (no invented grade or pass/fail threshold)."""
     if rounds_per_attack < 1 or rounds_per_attack > 5:
         raise HTTPException(400, "rounds_per_attack must be between 1 and 5")
     return redteam_audit.run_audit(rounds_per_attack=rounds_per_attack)
@@ -357,6 +357,7 @@ def reset_demo():
     taxonomy_store.reset()
     case_router.refit()
     _LIVE_FEED.clear()
+    groq_client.clear_cache()
     auto_specialist_store._models.clear()
     auto_specialist_store.metrics.clear()
     from app.generate.profile_inference import _profile_cache

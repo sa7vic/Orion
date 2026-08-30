@@ -236,14 +236,20 @@ function RoundRow({ index, round }) {
     );
   }
   const evaded = round.mutation.evaded;
+  const r1Action = round.round_1.policy?.action || (round.round_1.final_risk_score >= 0.85 ? "BLOCK" : "STEP_UP");
+  const r2Action = round.round_2.policy?.action || (round.round_2.final_risk_score < 0.25 ? "ALLOW" : round.round_2.final_risk_score < 0.60 ? "MONITOR" : "STEP_UP");
   return (
     <div className="flex items-center gap-3 text-xs font-mono bg-panel2/60 rounded-lg px-3 py-2 animate-[fadeIn_0.3s_ease]">
       <span className="w-5 shrink-0 text-faint">R{index}</span>
-      <span style={{ color: tierColor(round.round_1.final_risk_score) }}>{round.round_1.final_risk_score.toFixed(2)}</span>
+      <span style={{ color: tierColor(round.round_1.final_risk_score) }}>
+        {r1Action} ({round.round_1.final_risk_score.toFixed(2)})
+      </span>
       <span className="text-faint">→</span>
-      <span style={{ color: tierColor(round.round_2.final_risk_score) }}>{round.round_2.final_risk_score.toFixed(2)}</span>
+      <span style={{ color: tierColor(round.round_2.final_risk_score) }}>
+        {r2Action} ({round.round_2.final_risk_score.toFixed(2)})
+      </span>
       <span className={`ml-auto font-semibold ${evaded ? "text-danger" : "text-safe"}`}>
-        {evaded ? "RED WINS" : "BLUE HOLDS"}
+        {evaded ? "RED EVADED" : "BLUE MITIGATED"}
       </span>
     </div>
   );
