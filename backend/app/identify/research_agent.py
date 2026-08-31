@@ -47,16 +47,24 @@ def run_research_cycle(attack_entry: dict) -> dict:
     return attack_entry
 
 
+import re
+
+def _clean_search_keywords(summary: str, max_words: int = 7) -> str:
+    cleaned = re.sub(r"[^\w\s]", " ", summary)
+    stop_words = {"this", "that", "with", "from", "they", "their", "them", "over", "then", "asked", "case", "bot", "user", "script"}
+    words = [w for w in cleaned.split() if len(w) > 2 and w.lower() not in stop_words]
+    return " ".join(words[:max_words])
+
+
 def synthesize_new_attack_id(cluster_summary: str, sample_channel: str) -> dict:
     """
     Called by the Defend feedback loop when a cluster of generalist-only
     catches looks coherent enough to deserve its own specialist.
     """
-    # Ground the naming step in a real search first, using the cluster's
-    # own summary as the query -- this is the "researched, not guessed"
-    # step for brand-new patterns.
-    query = cluster_summary.replace("\n", " ").replace("- ", "")[:200]
-    research = research_attack_pattern(f"{query} payment fraud", max_results=5)
+    # Extract concise search keywords to prevent search engine timeout
+    keywords = _clean_search_keywords(cluster_summary)
+    query = f"{keywords} payment fraud India UPI" if keywords else f"{sample_channel} payment fraud India UPI"
+    research = research_attack_pattern(query, max_results=5)
     sources_block = (
         "\n".join(f"- {s['title']}: {s['snippet'][:200]}" for s in research["sources"])
         if research["sources"]

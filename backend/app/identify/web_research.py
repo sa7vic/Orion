@@ -40,12 +40,12 @@ except ImportError:  # pragma: no cover
     _DDGS_AVAILABLE = False
 
 
-def search(query: str, max_results: int = 5, timeout: int = 8) -> list[dict]:
+def search(query: str, max_results: int = 5, timeout: int = 5) -> list[dict]:
     """Returns [{title, snippet, url}, ...] or [] on any failure -- callers
     must treat an empty list as 'no live research available this time',
     not as an error to propagate."""
     if not _DDGS_AVAILABLE:
-        logger.warning("ddgs not installed -- web research unavailable")
+        logger.info("ddgs not installed -- web research unavailable")
         return []
     try:
         with DDGS(timeout=timeout) as ddgs:
@@ -55,7 +55,7 @@ def search(query: str, max_results: int = 5, timeout: int = 8) -> list[dict]:
             for r in raw
         ]
     except Exception as e:  # noqa: BLE001 -- genuinely any failure here should degrade, not crash
-        logger.warning(f"web research search failed for query '{query}': {e}")
+        logger.info(f"Web research search unavailable ({type(e).__name__}) for query '{query[:60]}...' -- proceeding with pattern synthesis")
         return []
 
 

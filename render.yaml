@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: orion-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: PYTHONUNBUFFERED
+        value: '1'
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL_FAST
+        value: openai/gpt-oss-20b
+      - key: GROQ_MODEL_SMART
+        value: openai/gpt-oss-120b

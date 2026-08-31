@@ -120,6 +120,14 @@ class OrionGroqClient:
             msg = str(e).lower()
             if "429" in msg or "rate" in msg:
                 raise GroqRateLimitError(str(e)) from e
+            if json_mode and "json_validate_failed" in msg:
+                try:
+                    kwargs.pop("response_format", None)
+                    kwargs["messages"][0]["content"] = system + " Output ONLY a valid JSON object."
+                    resp = self._client.chat.completions.create(**kwargs)
+                    return resp.choices[0].message.content
+                except Exception:
+                    pass
             raise
 
     def complete(
@@ -183,10 +191,19 @@ class OrionGroqClient:
             offline_fallback=json.dumps(fallback),
             use_cache=use_cache,
         )
+        if not raw or raw == "{}":
+            return fallback
         try:
             cleaned = raw.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
             return json.loads(cleaned)
         except (json.JSONDecodeError, AttributeError):
+            import re
+            match = re.search(r"\{[\s\S]*\}", raw)
+            if match:
+                try:
+                    return json.loads(match.group(0))
+                except Exception:
+                    pass
             return fallback
 
 

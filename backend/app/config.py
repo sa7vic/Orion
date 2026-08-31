@@ -24,14 +24,13 @@ class Settings(BaseSettings):
     # Fast/cheap model — used for high-volume, low-latency calls
     # (transcript scam-marker scoring, per-case classification prompts).
     groq_model_fast: str = Field(default="openai/gpt-oss-20b", alias="GROQ_MODEL_FAST")
-
     # Larger/higher-quality model — used for low-volume, high-value calls
     # (Identify pillar's fraud-pattern research/clustering, taxonomy writing).
     groq_model_smart: str = Field(default="openai/gpt-oss-120b", alias="GROQ_MODEL_SMART")
 
-    # --- Groq free-tier rate limiting (see README for current numbers) ---
     # Free tier is roughly 30 requests/minute. We stay well under that so a
-    # live demo never gets a 429. Tune via .env if you're on a paid tier.
+    # live demo never gets 
+    # a 429. Tune via .env if you're on a paid tier.
     groq_max_requests_per_minute: int = Field(default=20, alias="GROQ_MAX_RPM")
     groq_cache_ttl_seconds: int = Field(default=3600, alias="GROQ_CACHE_TTL")
 
