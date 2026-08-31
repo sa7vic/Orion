@@ -29,7 +29,8 @@ class Settings(BaseSettings):
     groq_model_smart: str = Field(default="openai/gpt-oss-120b", alias="GROQ_MODEL_SMART")
 
     # Free tier is roughly 30 requests/minute. We stay well under that so a
-    # live demo never gets a 429. Tune via .env if you're on a paid tier.
+    # live demo never gets 
+    # a 429. Tune via .env if you're on a paid tier.
     groq_max_requests_per_minute: int = Field(default=20, alias="GROQ_MAX_RPM")
     groq_cache_ttl_seconds: int = Field(default=3600, alias="GROQ_CACHE_TTL")
 
